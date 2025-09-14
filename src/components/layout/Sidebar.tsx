@@ -20,6 +20,7 @@ const navigation = [
   { name: "Vendors", href: "/vendors", icon: ShoppingCart },
   { name: "Workers", href: "/workers", icon: Users },
   { name: "Expenses", href: "/expenses", icon: Receipt },
+  { name: "Payments", href: "/worker-payments", icon: Receipt },
   { name: "Search", href: "/search", icon: Search },
 ];
 

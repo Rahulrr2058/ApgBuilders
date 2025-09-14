@@ -3,46 +3,45 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Eye, Calendar, MapPin, Building2 } from "lucide-react";
+import { Plus, Edit, Eye, Phone, Mail, Users, IndianRupee } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface Site {
+interface Worker {
   id: string;
   name: string;
-  location: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  budget: number;
-  status: string;
+  phone: string;
+  email: string;
+  address: string;
+  skill_type: string;
+  daily_rate: number;
   created_at: string;
 }
 
-export default function Sites() {
-  const [sites, setSites] = useState<Site[]>([]);
+export default function Workers() {
+  const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchSites();
+    fetchWorkers();
   }, []);
 
-  const fetchSites = async () => {
+  const fetchWorkers = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("sites")
+        .from("workers")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setSites(data || []);
+      setWorkers(data || []);
     } catch (error) {
-      console.error("Error fetching sites:", error);
+      console.error("Error fetching workers:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch sites",
+        description: "Failed to fetch workers",
         variant: "destructive",
       });
     } finally {
@@ -50,27 +49,14 @@ export default function Sites() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Sites</h1>
+          <h1 className="text-3xl font-bold">Workers</h1>
           <Button disabled>
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Worker
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,72 +78,71 @@ export default function Sites() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Sites</h1>
+        <h1 className="text-3xl font-bold">Workers</h1>
         <Button asChild>
-          <Link to="/sites/add">
+          <Link to="/workers/add">
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Worker
           </Link>
         </Button>
       </div>
 
-      {sites.length === 0 ? (
+      {workers.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
+              <Users className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No sites yet</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first construction site.</p>
+            <h3 className="text-lg font-semibold mb-2">No workers yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by adding your first worker.</p>
             <Button asChild>
-              <Link to="/sites/add">
+              <Link to="/workers/add">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Site
+                Add Your First Worker
               </Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sites.map((site) => (
-            <Card key={site.id} className="hover:shadow-lg transition-shadow">
+          {workers.map((worker) => (
+            <Card key={worker.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{site.name}</CardTitle>
-                  <Badge className={getStatusColor(site.status)}>
-                    {site.status}
-                  </Badge>
+                  <CardTitle className="text-lg">{worker.name}</CardTitle>
+                  {worker.skill_type && (
+                    <Badge variant="secondary">
+                      {worker.skill_type}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {site.location && (
+                  {worker.phone && (
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {site.location}
+                      <Phone className="h-4 w-4 mr-2" />
+                      {worker.phone}
                     </div>
                   )}
-                  {site.start_date && (
+                  {worker.email && (
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(site.start_date).toLocaleDateString()}
-                      {site.end_date && ` - ${new Date(site.end_date).toLocaleDateString()}`}
+                      <Mail className="h-4 w-4 mr-2" />
+                      {worker.email}
+                    </div>
+                  )}
+                  {worker.daily_rate && (
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <IndianRupee className="h-4 w-4 mr-2" />
+                      ₹{worker.daily_rate}/day
                     </div>
                   )}
                 </div>
 
-                {site.description && (
+                {worker.address && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
-                    {site.description}
+                    {worker.address}
                   </p>
-                )}
-
-                {site.budget && (
-                  <div className="pt-2 border-t">
-                    <p className="text-sm font-medium">
-                      Budget: <span className="text-primary">₹{site.budget.toLocaleString()}</span>
-                    </p>
-                  </div>
                 )}
 
                 <div className="flex space-x-2 pt-2">
@@ -166,7 +151,7 @@ export default function Sites() {
                     View
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link to={`/sites/edit/${site.id}`}>
+                    <Link to={`/workers/edit/${worker.id}`}>
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Link>

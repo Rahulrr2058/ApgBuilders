@@ -3,46 +3,45 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Eye, Calendar, MapPin, Building2 } from "lucide-react";
+import { Plus, Edit, Eye, Phone, Mail, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface Site {
+interface Vendor {
   id: string;
   name: string;
-  location: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  budget: number;
-  status: string;
+  contact_person: string;
+  phone: string;
+  email: string;
+  address: string;
+  vendor_type: string;
   created_at: string;
 }
 
-export default function Sites() {
-  const [sites, setSites] = useState<Site[]>([]);
+export default function Vendors() {
+  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchSites();
+    fetchVendors();
   }, []);
 
-  const fetchSites = async () => {
+  const fetchVendors = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("sites")
+        .from("vendors")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setSites(data || []);
+      setVendors(data || []);
     } catch (error) {
-      console.error("Error fetching sites:", error);
+      console.error("Error fetching vendors:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch sites",
+        description: "Failed to fetch vendors",
         variant: "destructive",
       });
     } finally {
@@ -50,27 +49,14 @@ export default function Sites() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Sites</h1>
+          <h1 className="text-3xl font-bold">Vendors</h1>
           <Button disabled>
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Vendor
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,72 +78,70 @@ export default function Sites() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Sites</h1>
+        <h1 className="text-3xl font-bold">Vendors</h1>
         <Button asChild>
-          <Link to="/sites/add">
+          <Link to="/vendors/add">
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Vendor
           </Link>
         </Button>
       </div>
 
-      {sites.length === 0 ? (
+      {vendors.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
+              <ShoppingCart className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No sites yet</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first construction site.</p>
+            <h3 className="text-lg font-semibold mb-2">No vendors yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by adding your first vendor.</p>
             <Button asChild>
-              <Link to="/sites/add">
+              <Link to="/vendors/add">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Site
+                Add Your First Vendor
               </Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sites.map((site) => (
-            <Card key={site.id} className="hover:shadow-lg transition-shadow">
+          {vendors.map((vendor) => (
+            <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{site.name}</CardTitle>
-                  <Badge className={getStatusColor(site.status)}>
-                    {site.status}
-                  </Badge>
+                  <CardTitle className="text-lg">{vendor.name}</CardTitle>
+                  {vendor.vendor_type && (
+                    <Badge variant="secondary">
+                      {vendor.vendor_type}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {site.location && (
+                  {vendor.contact_person && (
+                    <p className="text-sm text-muted-foreground">
+                      Contact: {vendor.contact_person}
+                    </p>
+                  )}
+                  {vendor.phone && (
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {site.location}
+                      <Phone className="h-4 w-4 mr-2" />
+                      {vendor.phone}
                     </div>
                   )}
-                  {site.start_date && (
+                  {vendor.email && (
                     <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(site.start_date).toLocaleDateString()}
-                      {site.end_date && ` - ${new Date(site.end_date).toLocaleDateString()}`}
+                      <Mail className="h-4 w-4 mr-2" />
+                      {vendor.email}
                     </div>
                   )}
                 </div>
 
-                {site.description && (
+                {vendor.address && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
-                    {site.description}
+                    {vendor.address}
                   </p>
-                )}
-
-                {site.budget && (
-                  <div className="pt-2 border-t">
-                    <p className="text-sm font-medium">
-                      Budget: <span className="text-primary">₹{site.budget.toLocaleString()}</span>
-                    </p>
-                  </div>
                 )}
 
                 <div className="flex space-x-2 pt-2">
@@ -166,7 +150,7 @@ export default function Sites() {
                     View
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link to={`/sites/edit/${site.id}`}>
+                    <Link to={`/vendors/edit/${vendor.id}`}>
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Link>

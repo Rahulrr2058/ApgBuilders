@@ -3,46 +3,51 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Eye, Calendar, MapPin, Building2 } from "lucide-react";
+import { Plus, Edit, Eye, Calendar, Receipt as ReceiptIcon, IndianRupee } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface Site {
+interface Expense {
   id: string;
-  name: string;
-  location: string;
   description: string;
-  start_date: string;
-  end_date: string;
-  budget: number;
-  status: string;
+  amount: number;
+  expense_date: string;
+  category: string;
+  receipt_url: string;
+  notes: string;
+  site: { name: string };
+  vendor: { name: string };
   created_at: string;
 }
 
-export default function Sites() {
-  const [sites, setSites] = useState<Site[]>([]);
+export default function Expenses() {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchSites();
+    fetchExpenses();
   }, []);
 
-  const fetchSites = async () => {
+  const fetchExpenses = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("sites")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .from("expenses")
+        .select(`
+          *,
+          site:sites(name),
+          vendor:vendors(name)
+        `)
+        .order("expense_date", { ascending: false });
 
       if (error) throw error;
-      setSites(data || []);
+      setExpenses(data || []);
     } catch (error) {
-      console.error("Error fetching sites:", error);
+      console.error("Error fetching expenses:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch sites",
+        description: "Failed to fetch expenses",
         variant: "destructive",
       });
     } finally {
@@ -50,27 +55,14 @@ export default function Sites() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Sites</h1>
+          <h1 className="text-3xl font-bold">Expenses</h1>
           <Button disabled>
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Expense
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,72 +84,67 @@ export default function Sites() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Sites</h1>
+        <h1 className="text-3xl font-bold">Expenses</h1>
         <Button asChild>
-          <Link to="/sites/add">
+          <Link to="/expenses/add">
             <Plus className="h-4 w-4 mr-2" />
-            Add Site
+            Add Expense
           </Link>
         </Button>
       </div>
 
-      {sites.length === 0 ? (
+      {expenses.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
+              <ReceiptIcon className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No sites yet</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first construction site.</p>
+            <h3 className="text-lg font-semibold mb-2">No expenses yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by adding your first expense.</p>
             <Button asChild>
-              <Link to="/sites/add">
+              <Link to="/expenses/add">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Site
+                Add Your First Expense
               </Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sites.map((site) => (
-            <Card key={site.id} className="hover:shadow-lg transition-shadow">
+          {expenses.map((expense) => (
+            <Card key={expense.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{site.name}</CardTitle>
-                  <Badge className={getStatusColor(site.status)}>
-                    {site.status}
-                  </Badge>
+                  <CardTitle className="text-lg">{expense.description}</CardTitle>
+                  {expense.category && (
+                    <Badge variant="secondary">
+                      {expense.category}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {site.location && (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {site.location}
-                    </div>
-                  )}
-                  {site.start_date && (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(site.start_date).toLocaleDateString()}
-                      {site.end_date && ` - ${new Date(site.end_date).toLocaleDateString()}`}
-                    </div>
-                  )}
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <IndianRupee className="h-4 w-4 mr-2" />
+                    ₹{expense.amount.toLocaleString()}
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(expense.expense_date).toLocaleDateString()}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Site: {expense.site?.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Vendor: {expense.vendor?.name}
+                  </p>
                 </div>
 
-                {site.description && (
+                {expense.notes && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
-                    {site.description}
+                    {expense.notes}
                   </p>
-                )}
-
-                {site.budget && (
-                  <div className="pt-2 border-t">
-                    <p className="text-sm font-medium">
-                      Budget: <span className="text-primary">₹{site.budget.toLocaleString()}</span>
-                    </p>
-                  </div>
                 )}
 
                 <div className="flex space-x-2 pt-2">
@@ -166,7 +153,7 @@ export default function Sites() {
                     View
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link to={`/sites/edit/${site.id}`}>
+                    <Link to={`/expenses/edit/${expense.id}`}>
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Link>
