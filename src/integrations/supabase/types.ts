@@ -19,9 +19,11 @@ export type Database = {
           amount: number
           category: string | null
           created_at: string
+          credit_amount: number | null
           description: string
           expense_date: string
           id: string
+          is_credit: boolean | null
           notes: string | null
           receipt_url: string | null
           site_id: string
@@ -32,9 +34,11 @@ export type Database = {
           amount: number
           category?: string | null
           created_at?: string
+          credit_amount?: number | null
           description: string
           expense_date?: string
           id?: string
+          is_credit?: boolean | null
           notes?: string | null
           receipt_url?: string | null
           site_id: string
@@ -45,9 +49,11 @@ export type Database = {
           amount?: number
           category?: string | null
           created_at?: string
+          credit_amount?: number | null
           description?: string
           expense_date?: string
           id?: string
+          is_credit?: boolean | null
           notes?: string | null
           receipt_url?: string | null
           site_id?: string
@@ -67,6 +73,50 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_income: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          income_date: string
+          notes: string | null
+          site_id: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          income_date?: string
+          notes?: string | null
+          site_id: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          income_date?: string
+          notes?: string | null
+          site_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_income_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -115,6 +165,7 @@ export type Database = {
           address: string | null
           contact_person: string | null
           created_at: string
+          credit_balance: number | null
           email: string | null
           id: string
           name: string
@@ -126,6 +177,7 @@ export type Database = {
           address?: string | null
           contact_person?: string | null
           created_at?: string
+          credit_balance?: number | null
           email?: string | null
           id?: string
           name: string
@@ -137,6 +189,7 @@ export type Database = {
           address?: string | null
           contact_person?: string | null
           created_at?: string
+          credit_balance?: number | null
           email?: string | null
           id?: string
           name?: string

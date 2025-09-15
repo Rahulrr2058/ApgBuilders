@@ -161,9 +161,11 @@ export default function Sites() {
                 )}
 
                 <div className="flex space-x-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to={`/sites/view/${site.id}`}>
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1" asChild>
                     <Link to={`/sites/edit/${site.id}`}>

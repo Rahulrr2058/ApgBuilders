@@ -20,6 +20,12 @@ import EditExpense from "./pages/EditExpense";
 import WorkerPayments from "./pages/WorkerPayments";
 import AddWorkerPayment from "./pages/AddWorkerPayment";
 import EditWorkerPayment from "./pages/EditWorkerPayment";
+import Income from "./pages/Income";
+import AddIncome from "./pages/AddIncome";
+import EditIncome from "./pages/EditIncome";
+import ViewSite from "./pages/ViewSite";
+import ViewVendor from "./pages/ViewVendor";
+import ViewWorker from "./pages/ViewWorker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +54,17 @@ const App = () => (
             <Route path="/worker-payments" element={<WorkerPayments />} />
             <Route path="/worker-payments/add" element={<AddWorkerPayment />} />
             <Route path="/worker-payments/edit/:id" element={<EditWorkerPayment />} />
+            
+            {/* Income routes */}
+            <Route path="/income" element={<Income />} />
+            <Route path="/income/add" element={<AddIncome />} />
+            <Route path="/income/edit/:id" element={<EditIncome />} />
+
+            {/* View routes */}
+            <Route path="/sites/view/:id" element={<ViewSite />} />
+            <Route path="/vendors/view/:id" element={<ViewVendor />} />
+            <Route path="/workers/view/:id" element={<ViewWorker />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

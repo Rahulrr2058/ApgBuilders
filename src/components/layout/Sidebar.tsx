@@ -21,7 +21,7 @@ const navigation = [
   { name: "Workers", href: "/workers", icon: Users },
   { name: "Expenses", href: "/expenses", icon: Receipt },
   { name: "Payments", href: "/worker-payments", icon: Receipt },
-  { name: "Search", href: "/search", icon: Search },
+  { name: "Income", href: "/income", icon: Receipt },
 ];
 
 export function Sidebar() {

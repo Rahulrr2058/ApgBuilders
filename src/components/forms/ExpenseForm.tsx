@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
@@ -20,6 +21,8 @@ interface Expense {
   category: string;
   receipt_url: string;
   notes: string;
+  is_credit: boolean;
+  credit_amount: number;
 }
 
 interface ExpenseFormProps {
@@ -42,6 +45,8 @@ export default function ExpenseForm({ expense, isEdit = false }: ExpenseFormProp
     category: "",
     receipt_url: "",
     notes: "",
+    is_credit: false,
+    credit_amount: 0,
     ...expense
   });
 
@@ -196,6 +201,33 @@ export default function ExpenseForm({ expense, isEdit = false }: ExpenseFormProp
                 />
               </div>
             </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_credit"
+                checked={formData.is_credit}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_credit: checked as boolean })}
+              />
+              <Label htmlFor="is_credit">This is a credit purchase</Label>
+            </div>
+
+            {formData.is_credit && (
+              <div className="space-y-2">
+                <Label htmlFor="credit_amount">Credit Amount (₹)</Label>
+                <Input
+                  id="credit_amount"
+                  type="number"
+                  value={formData.credit_amount}
+                  onChange={(e) => setFormData({ ...formData, credit_amount: Number(e.target.value) })}
+                  min="0"
+                  step="0.01"
+                  placeholder={`Max: ${formData.amount}`}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Leave empty to use the full amount as credit
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="receipt_url">Receipt URL</Label>
